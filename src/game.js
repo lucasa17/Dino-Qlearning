@@ -420,15 +420,15 @@ export class DinoEnvironment {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
-    // Background sky
+    // Background sky (clean aqua-ivory)
     const skyGrad = ctx.createLinearGradient(0, 0, 0, GROUND_Y);
-    skyGrad.addColorStop(0, '#f8fafc');
-    skyGrad.addColorStop(1, '#ffffff');
+    skyGrad.addColorStop(0, '#e3f4ef');
+    skyGrad.addColorStop(1, '#f8fdfa');
     ctx.fillStyle = skyGrad;
     ctx.fillRect(0, 0, LOGICAL_WIDTH, GROUND_Y);
 
     // Subtle clouds
-    ctx.fillStyle = '#e2e8f0';
+    ctx.fillStyle = '#c2e3da';
     for (const c of this.clouds) {
       ctx.fillRect(c.x, c.y, c.w, 8);
       ctx.fillRect(c.x + 10, c.y - 6, c.w - 20, 6);
@@ -437,18 +437,18 @@ export class DinoEnvironment {
     // Distance Zones Overlay ahead of Dino
     this.renderDistanceZones(ctx);
 
-    // Ground track & pebbles
-    ctx.fillStyle = '#f1f5f9';
+    // Ground track & pebbles (stronger earth-aqua separation)
+    ctx.fillStyle = '#bfe4da';
     ctx.fillRect(0, GROUND_Y, LOGICAL_WIDTH, LOGICAL_HEIGHT - GROUND_Y);
 
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#145348';
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(0, GROUND_Y);
     ctx.lineTo(LOGICAL_WIDTH, GROUND_Y);
     ctx.stroke();
 
-    ctx.fillStyle = '#cbd5e1';
+    ctx.fillStyle = '#68a699';
     for (const p of this.groundPebbles) {
       ctx.fillRect(p.x, GROUND_Y + p.yOffset, p.w, 2);
     }
@@ -493,13 +493,13 @@ export class DinoEnvironment {
 
       const isActive = i === activeDistBin;
       if (isActive) {
-        ctx.fillStyle = 'rgba(2, 132, 199, 0.06)';
+        ctx.fillStyle = 'rgba(29, 78, 216, 0.11)';
         ctx.fillRect(xStart, 22, xEnd - xStart, GROUND_Y - 22);
       }
 
       // Vertical zone separator
-      ctx.strokeStyle = isActive ? 'rgba(2, 132, 199, 0.35)' : '#e2e8f0';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = isActive ? 'rgba(29, 78, 216, 0.55)' : '#9fd1c5';
+      ctx.lineWidth = isActive ? 1.5 : 1;
       ctx.setLineDash([3, 3]);
       ctx.beginPath();
       ctx.moveTo(xStart, 24);
@@ -511,7 +511,7 @@ export class DinoEnvironment {
       ctx.font = isActive
         ? '600 11px "IBM Plex Mono", monospace'
         : '500 10px "IBM Plex Mono", monospace';
-      ctx.fillStyle = isActive ? '#0284c7' : '#94a3b8';
+      ctx.fillStyle = isActive ? '#1d4ed8' : '#3d6b63';
       const labelX = xStart + 6;
       if (labelX + 18 < xEnd) {
         ctx.fillText(DIST_BINS[i].short, labelX, 36);
@@ -532,8 +532,8 @@ export class DinoEnvironment {
     const state = STATES[this.getCurrentStateIndex()];
 
     ctx.save();
-    ctx.strokeStyle = '#0284c7';
-    ctx.lineWidth = 1.25;
+    ctx.strokeStyle = '#1d4ed8';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(startX, lineY - 5);
     ctx.lineTo(startX, lineY + 5);
@@ -548,9 +548,9 @@ export class DinoEnvironment {
     const textW = ctx.measureText(label).width;
     const midX = Math.max(startX + 4, Math.min(LOGICAL_WIDTH - textW - 12, (startX + endX - textW) / 2));
 
-    ctx.fillStyle = '#f1f5f9';
+    ctx.fillStyle = '#eff6ff';
     ctx.fillRect(midX - 5, lineY - 8, textW + 10, 16);
-    ctx.fillStyle = '#0369a1';
+    ctx.fillStyle = '#1e3a8a';
     ctx.fillText(label, midX, lineY + 4);
     ctx.restore();
   }
@@ -566,13 +566,13 @@ export class DinoEnvironment {
       color = '#dc2626';
     } else if (dec.isExploration) {
       label = `⚡ ${ACTION_LABELS[dec.action].toUpperCase()} (ε)`;
-      color = '#d97706';
+      color = '#b45309';
     } else if (dec.action === ACTION_JUMP) {
       label = '▲ SALTAR';
-      color = '#0284c7';
+      color = '#1d4ed8';
     } else {
       label = '→ CORRER';
-      color = '#059669';
+      color = '#047857';
     }
 
     ctx.save();
@@ -587,21 +587,21 @@ export class DinoEnvironment {
   drawDino(ctx) {
     const { x, y, legFrame, isGrounded } = this.dino;
     ctx.save();
-    ctx.fillStyle = this.isDead ? '#dc2626' : '#0f172a';
+    ctx.fillStyle = this.isDead ? '#dc2626' : '#072621';
 
     // Head & snout
     ctx.fillRect(x + 14, y, 20, 14);
     ctx.fillRect(x + 20, y + 14, 10, 3);
     // Eye
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#f8fdfa';
     ctx.fillRect(x + 20, y + 4, 4, 4);
     if (!this.isDead) {
-      ctx.fillStyle = '#0284c7';
+      ctx.fillStyle = '#2dd4bf';
       ctx.fillRect(x + 22, y + 5, 2, 2);
     }
 
     // Neck & torso
-    ctx.fillStyle = this.isDead ? '#dc2626' : '#0f172a';
+    ctx.fillStyle = this.isDead ? '#dc2626' : '#072621';
     ctx.fillRect(x + 12, y + 14, 12, 6);
     ctx.fillRect(x + 6, y + 18, 18, 16);
     // Tail

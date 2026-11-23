@@ -1,18 +1,20 @@
 :root {
-  --bg-canvas: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f1f5f9;
-  --border-hairline: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --bg-canvas: #c6e8e0;
+  --bg-surface: #fcfffe;
+  --bg-subtle: #dff2ed;
+  --border-hairline: #93cbbd;
+  --border-strong: #5fa898;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-primary: #072621;
+  --text-secondary: #1e4b44;
+  --text-muted: #3d6b63;
 
-  --accent-jump: #0284c7;
-  --accent-jump-soft: #e0f2fe;
-  --accent-run: #059669;
-  --accent-run-soft: #d1fae5;
+  --accent-primary: #0d9488;
+  --accent-primary-hover: #0f766e;
+  --accent-jump: #1d4ed8;
+  --accent-jump-soft: #dbeafe;
+  --accent-run: #047857;
+  --accent-run-soft: #bbf7d0;
   --accent-warn: #d97706;
   --accent-warn-soft: #fef3c7;
   --accent-danger: #dc2626;
@@ -39,6 +41,8 @@ html {
 body {
   margin: 0;
   background-color: var(--bg-canvas);
+  background-image: linear-gradient(180deg, #b8e2d8 0%, #ccebe3 50%, #bfe6dd 100%);
+  background-attachment: fixed;
   color: var(--text-primary);
   font-family: var(--font-body);
   font-size: 15px;
@@ -56,9 +60,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border-hairline);
+  background: #0b3b34;
+  border-bottom: 2px solid #062621;
+  box-shadow: 0 2px 10px rgba(7, 38, 33, 0.14);
 }
 
 .topbar-inner {
@@ -76,7 +80,7 @@ body {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
+  color: #f0fdfa;
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
@@ -91,20 +95,20 @@ body {
 .nav-link {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #a7dfd4;
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
   padding: 4px 0;
-  border-bottom: 1.5px solid transparent;
+  border-bottom: 2px solid transparent;
   transition: color 160ms cubic-bezier(0.16, 1, 0.3, 1),
     border-color 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nav-link:hover,
 .nav-link:focus-visible {
-  color: var(--text-primary);
-  border-bottom-color: var(--accent-jump);
+  color: #ffffff;
+  border-bottom-color: #2dd4bf;
   outline: none;
 }
 
@@ -146,25 +150,26 @@ body {
 }
 
 .btn-primary {
-  background: var(--text-primary);
-  color: #ffffff;
+  background: #14b8a6;
+  color: #052823;
+  border-color: #2dd4bf;
 }
 
 .btn-primary:hover {
-  background: #1e293b;
+  background: #2dd4bf;
 }
 
 .btn-accent {
-  background: var(--accent-jump);
+  background: var(--accent-primary);
   color: #ffffff;
 }
 
 .btn-accent:hover {
-  background: #0369a1;
+  background: var(--accent-primary-hover);
 }
 
 .btn-secondary {
-  background: var(--bg-surface);
+  background: #ffffff;
   color: var(--text-primary);
   border-color: var(--border-strong);
 }
@@ -194,7 +199,7 @@ body {
   gap: 16px 32px;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--border-hairline);
+  border-bottom: 1.5px solid var(--border-hairline);
 }
 
 .page-title {
@@ -249,12 +254,13 @@ body {
   min-width: 0;
 }
 
-/* Single-elevation flat panels with hairline borders */
+/* Single-elevation crisp panels clearly separated from aqua backdrop */
 .panel {
   background: var(--bg-surface);
-  border: 1px solid var(--border-hairline);
+  border: 1.5px solid var(--border-hairline);
   border-radius: var(--radius-outer);
   padding: 20px;
+  box-shadow: 0 2px 10px rgba(7, 38, 33, 0.06);
 }
 
 .panel-head {
@@ -333,13 +339,13 @@ body {
 }
 
 .seg-btn.active {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  background: #0d9488;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(7, 38, 33, 0.18);
 }
 
 .seg-btn:focus-visible {
-  outline: 2px solid var(--accent-jump);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 1px;
 }
 
@@ -351,6 +357,7 @@ body {
   padding: 10px 14px;
   margin-bottom: 12px;
   background: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-inner);
 }
 
@@ -383,7 +390,7 @@ body {
   width: 100%;
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-inner);
-  background: #ffffff;
+  background: #eef8f5;
   overflow: hidden;
 }
 
@@ -464,6 +471,7 @@ body {
 
 .formula-box {
   background: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
   border-radius: var(--radius-inner);
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -489,7 +497,7 @@ body {
 }
 
 .b-cell {
-  background: var(--bg-canvas);
+  background: #edf8f5;
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-inner);
   padding: 8px 10px;
@@ -513,7 +521,7 @@ body {
   width: 100%;
   border: 1px solid var(--border-hairline);
   border-radius: var(--radius-inner);
-  background: #ffffff;
+  background: var(--bg-surface);
   overflow: hidden;
 }
 
@@ -642,19 +650,19 @@ body {
 
 .pm-cell.is-active {
   border-color: var(--text-primary);
-  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.14);
+  box-shadow: 0 0 0 2.5px #0d9488;
 }
 
 .pm-cell.act-run {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #065f46;
+  background: #bbf7d0;
+  border-color: #10b981;
+  color: #064e3b;
 }
 
 .pm-cell.act-jump {
-  background: #e0f2fe;
-  border-color: #7dd3fc;
-  color: #075985;
+  background: #dbeafe;
+  border-color: #3b82f6;
+  color: #1e3a8a;
 }
 
 .pm-icon {
@@ -706,20 +714,21 @@ body {
 }
 
 .qtable tbody tr:hover {
-  background: var(--bg-canvas);
+  background: #eaf7f4;
 }
 
 .qtable tbody tr.row-group-start td {
-  border-top: 2px solid var(--border-hairline);
+  border-top: 2px solid var(--border-strong);
 }
 
 .qtable tbody tr.is-current {
-  background: #eff6ff;
+  background: #b7ebe0;
+  box-shadow: inset 3px 0 0 #0d9488;
 }
 
 .qtable tbody tr.is-inspected {
-  outline: 1.5px solid var(--accent-jump);
-  outline-offset: -1.5px;
+  outline: 2px solid var(--accent-jump);
+  outline-offset: -2px;
 }
 
 .qtable td {
@@ -875,12 +884,12 @@ body {
 
 .slider-header output {
   font-weight: 600;
-  color: var(--accent-jump);
+  color: var(--accent-primary-hover);
 }
 
 input[type='range'] {
   width: 100%;
-  accent-color: var(--accent-jump);
+  accent-color: var(--accent-primary);
   cursor: pointer;
 }
 
@@ -903,7 +912,7 @@ input[type='range'] {
 .checkbox-row input {
   width: 16px;
   height: 16px;
-  accent-color: var(--accent-jump);
+  accent-color: var(--accent-primary);
 }
 
 /* Responsive Breakpoints */

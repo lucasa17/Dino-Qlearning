@@ -27,10 +27,10 @@ export class LearningChart {
     const plotH = CHART_H - padT - padB;
 
     // Background & grid
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#fcfffe';
     ctx.fillRect(0, 0, CHART_W, CHART_H);
 
-    ctx.strokeStyle = '#f1f5f9';
+    ctx.strokeStyle = '#d3ede6';
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
       const y = padT + (plotH / 4) * i;
@@ -41,7 +41,7 @@ export class LearningChart {
     }
 
     // Axes
-    ctx.strokeStyle = '#cbd5e1';
+    ctx.strokeStyle = '#4e8a7f';
     ctx.beginPath();
     ctx.moveTo(padL, padT);
     ctx.lineTo(padL, padT + plotH);
@@ -49,7 +49,7 @@ export class LearningChart {
     ctx.stroke();
 
     if (!history || history.length === 0) {
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#49756d';
       ctx.font = '500 13px "Plus Jakarta Sans", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(
@@ -65,7 +65,7 @@ export class LearningChart {
     const n = history.length;
 
     // Y-axis ticks (Score)
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#49756d';
     ctx.font = '500 10px "IBM Plex Mono", monospace';
     ctx.textAlign = 'right';
     for (let i = 0; i <= 4; i++) {
@@ -85,7 +85,7 @@ export class LearningChart {
     const getYEps = (eps) => padT + plotH - eps * plotH;
 
     // Raw episode scores line
-    ctx.strokeStyle = '#94a3b8';
+    ctx.strokeStyle = '#6da397';
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     for (let i = 0; i < n; i++) {
@@ -99,7 +99,7 @@ export class LearningChart {
     // Epsilon decay dashed line
     ctx.save();
     ctx.strokeStyle = '#d97706';
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1.75;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     for (let i = 0; i < n; i++) {
@@ -112,7 +112,7 @@ export class LearningChart {
     ctx.restore();
 
     // 10-episode moving average line
-    ctx.strokeStyle = '#0284c7';
+    ctx.strokeStyle = '#1d4ed8';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     for (let i = 0; i < n; i++) {
@@ -128,7 +128,7 @@ export class LearningChart {
     ctx.stroke();
 
     // X-axis episode labels
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#49756d';
     ctx.textAlign = 'center';
     ctx.fillText(`Ep. ${history[0].episode}`, padL + 16, CHART_H - 7);
     if (n > 1) {
