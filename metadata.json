@@ -1,0 +1,6 @@
+{
+  "name": "Dino Q-Learning",
+  "description": "Aplicação didática interativa em HTML, CSS e JS para o ensino de aprendizagem por reforço (Q-Learning) baseada no jogo do dinossauro, com visualização em tempo real dos estados e da memória do agente.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

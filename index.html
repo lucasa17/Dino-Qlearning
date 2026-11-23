@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dino Q-Learning — Laboratório Didático de Aprendizagem por Reforço</title>
+    <meta
+      name="description"
+      content="Aplicação didática interativa em HTML, CSS e JS para ensino de aprendizagem por reforço com tabela Q-Learning baseada no jogo do dinossauro."
+    />
+    <meta property="og:title" content="Dino Q-Learning — Aprendizagem por Reforço" />
+    <meta
+      property="og:description"
+      content="Observe em tempo real os estados, a política e os valores da tabela Q-Learning enquanto o agente aprende a correr e saltar obstáculos."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="#simulacao" class="brand">Dino Q-Learning</a>
+
+        <nav class="topnav" aria-label="Navegação principal">
+          <a href="#simulacao" class="nav-link">Simulação</a>
+          <a href="#memoria" class="nav-link">Memória Q</a>
+          <a href="#estados" class="nav-link">Estados</a>
+          <a href="#equacao" class="nav-link">Equação</a>
+        </nav>
+
+        <div class="topbar-actions">
+          <button id="btn-header-reset" type="button" class="btn btn-primary">
+            Reiniciar Memória
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <!-- Cabeçalho de contexto e métricas ao vivo -->
+      <section class="intro-strip" aria-labelledby="page-title">
+        <div class="intro-text">
+          <h1 id="page-title" class="page-title">
+            Aprendizagem por Reforço com Tabela Q em Tempo Real
+          </h1>
+          <p class="page-subtitle">
+            O agente percebe a distância até o próximo cacto e a velocidade atual, escolhe apenas entre
+            <strong>Correr</strong> ou <strong>Saltar</strong>, e atualiza sua memória Q a cada experiência.
+          </p>
+        </div>
+        <div class="live-meta" aria-live="polite">
+          <span>Episódio <strong id="meta-episode" class="mono">1</strong></span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span>Pontos <strong id="meta-score" class="mono">0</strong></span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span>Recorde <strong id="meta-best" class="mono">0</strong></span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span>Velocidade <strong id="meta-speed" class="mono">6.0 px/f</strong></span>
+          <span class="sep" aria-hidden="true">·</span>
+          <span>Exploração ε <strong id="meta-epsilon" class="mono">0.60</strong></span>
+        </div>
+      </section>
+
+      <!-- Grade principal em duas zonas: Palco Interativo (Esquerda) + Memória Q e Controles (Direita) -->
+      <div class="sandbox-grid">
+        <!-- ZONA ESQUERDA: Simulação, Bellman, Gráfico e Estados -->
+        <div class="stage-column">
+          <section id="simulacao" class="panel stage-panel" aria-label="Palco da simulação">
+            <div class="toolbar">
+              <div class="control-group" role="group" aria-label="Modo de operação">
+                <span class="control-label">Modo</span>
+                <div class="segmented" id="mode-segmented">
+                  <button type="button" class="seg-btn active" data-mode="train">
+                    Agente (Treino)
+                  </button>
+                  <button type="button" class="seg-btn" data-mode="eval">
+                    Política Pura (ε=0)
+                  </button>
+                  <button type="button" class="seg-btn" data-mode="human">
+                    Humano (Espaço)
+                  </button>
+                </div>
+              </div>
+
+              <div class="control-group" role="group" aria-label="Controles de execução">
+                <button id="btn-play-pause" type="button" class="btn btn-accent">
+                  Pausar
+                </button>
+                <button id="btn-step" type="button" class="btn btn-secondary">
+                  Passo Único
+                </button>
+                <button id="btn-batch-train" type="button" class="btn btn-secondary">
+                  Treinar +25 Ep.
+                </button>
+              </div>
+
+              <div class="control-group" role="group" aria-label="Velocidade da simulação">
+                <span class="control-label">Ritmo</span>
+                <div class="segmented" id="speed-segmented">
+                  <button type="button" class="seg-btn active" data-speed="1">1×</button>
+                  <button type="button" class="seg-btn" data-speed="3">3×</button>
+                  <button type="button" class="seg-btn" data-speed="10">10×</button>
+                  <button type="button" class="seg-btn" data-speed="50">50×</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado atual resumido logo acima do canvas -->
+            <div class="sensor-readout" aria-live="polite">
+              <div class="readout-item">
+                <span class="readout-key">Estado atual s</span>
+                <span id="readout-state" class="readout-val mono">D5 · Normal</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-key">Distância ao cacto</span>
+                <span id="readout-distance" class="readout-val mono">— px</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-key">Última ação</span>
+                <span id="readout-action" class="readout-val">→ Correr</span>
+              </div>
+              <div class="readout-item">
+                <span class="readout-key">Origem da decisão</span>
+                <span id="readout-source" class="readout-val">Política Q</span>
+              </div>
+            </div>
+
+            <div class="canvas-frame">
+              <canvas
+                id="game-canvas"
+                width="840"
+                height="260"
+                aria-label="Área do jogo do dinossauro com zonas de distância e ações do agente"
+              ></canvas>
+            </div>
+
+            <div class="canvas-legend">
+              <span class="legend-item">
+                <span class="swatch swatch-run" aria-hidden="true"></span>
+                → Correr (manter no solo)
+              </span>
+              <span class="legend-item">
+                <span class="swatch swatch-jump" aria-hidden="true"></span>
+                ▲ Saltar (arco completo)
+              </span>
+              <span class="legend-item">
+                <span class="swatch swatch-explore" aria-hidden="true"></span>
+                ⚡ Exploração aleatória (ε)
+              </span>
+              <span class="legend-item">
+                <span class="swatch swatch-crash" aria-hidden="true"></span>
+                ✕ Colisão (-100)
+              </span>
+            </div>
+          </section>
+
+          <!-- Inspetor da Equação de Bellman em Tempo Real -->
+          <section id="equacao" class="panel" aria-labelledby="bellman-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="bellman-title" class="panel-title">
+                  Atualização na Memória (Equação de Bellman)
+                </h2>
+                <p class="panel-desc">
+                  Cada transição (s, a, R, s') recalcula o valor esperado Q(s, a) armazenado na tabela.
+                </p>
+              </div>
+              <span id="bellman-delta-label" class="delta-readout mono">ΔQ 0.00</span>
+            </div>
+
+            <div class="formula-box">
+              <div class="formula-symbolic mono">
+                Q(s, a) ← Q(s, a) + α · [ R + γ · max Q(s', a') − Q(s, a) ]
+              </div>
+              <div id="formula-live" class="formula-live mono">
+                Aguardando primeira transição de estado...
+              </div>
+            </div>
+
+            <div class="bellman-grid" id="bellman-breakdown">
+              <div class="b-cell">
+                <span class="b-label">Estado s → Ação a</span>
+                <strong id="b-sa" class="b-val mono">—</strong>
+              </div>
+              <div class="b-cell">
+                <span class="b-label">Recompensa R</span>
+                <strong id="b-reward" class="b-val mono">—</strong>
+              </div>
+              <div class="b-cell">
+                <span class="b-label">Próximo estado s'</span>
+                <strong id="b-next" class="b-val mono">—</strong>
+              </div>
+              <div class="b-cell">
+                <span class="b-label">Q anterior → Q novo</span>
+                <strong id="b-qchange" class="b-val mono">—</strong>
+              </div>
+            </div>
+          </section>
+
+          <!-- Gráfico de Evolução do Aprendizado -->
+          <section class="panel" aria-labelledby="chart-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="chart-title" class="panel-title">Curva de Aprendizado por Episódio</h2>
+                <p class="panel-desc">
+                  Pontuação obtida em cada tentativa e média móvel dos últimos 10 episódios.
+                </p>
+              </div>
+              <div class="chart-stats mono">
+                <span>Média (10 ep.): <strong id="stat-avg10">0</strong></span>
+                <span class="sep" aria-hidden="true">·</span>
+                <span>Episódios: <strong id="stat-epcount">0</strong></span>
+              </div>
+            </div>
+
+            <div class="chart-frame">
+              <canvas
+                id="chart-canvas"
+                width="800"
+                height="190"
+                aria-label="Gráfico de pontuação por episódio e decaimento de épsilon"
+              ></canvas>
+            </div>
+
+            <div class="canvas-legend">
+              <span class="legend-item">
+                <span class="swatch swatch-score" aria-hidden="true"></span>
+                Pontuação do episódio
+              </span>
+              <span class="legend-item">
+                <span class="swatch swatch-avg" aria-hidden="true"></span>
+                Média móvel (10 ep.)
+              </span>
+              <span class="legend-item">
+                <span class="swatch swatch-eps" aria-hidden="true"></span>
+                Taxa de exploração ε
+              </span>
+            </div>
+          </section>
+
+          <!-- Guia Didático de Estados e Recompensas -->
+          <section id="estados" class="panel" aria-labelledby="states-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="states-title" class="panel-title">
+                  Modelagem do Ambiente: 12 Estados Discretos e Recompensas
+                </h2>
+                <p class="panel-desc">
+                  Para tornar a tabela Q legível em tempo real, o mundo contínuo é discretizado em 6 faixas de distância × 2 regimes de velocidade.
+                </p>
+              </div>
+            </div>
+
+            <div class="didactic-two-col">
+              <div>
+                <h3 class="subhead">Faixas de Distância até o Obstáculo</h3>
+                <ul class="spec-list">
+                  <li><span class="mono spec-code">D0</span> <strong>Iminente (≤ 45 px)</strong> — Zona tardia de colisão</li>
+                  <li><span class="mono spec-code">D1</span> <strong>Crítica (46–95 px)</strong> — Salto curto em velocidade normal</li>
+                  <li><span class="mono spec-code">D2</span> <strong>Curta (96–145 px)</strong> — Janela ideal de salto (normal/alta)</li>
+                  <li><span class="mono spec-code">D3</span> <strong>Longa (146–210 px)</strong> — Salto antecipado para alta velocidade</li>
+                  <li><span class="mono spec-code">D4</span> <strong>Distante (211–300 px)</strong> — Cacto se aproximando</li>
+                  <li><span class="mono spec-code">D5</span> <strong>Livre (&gt; 300 px)</strong> — Sem ameaça imediata</li>
+                </ul>
+              </div>
+              <div>
+                <h3 class="subhead">Regimes de Velocidade &amp; Função de Recompensa</h3>
+                <ul class="spec-list">
+                  <li><span class="mono spec-code">V0</span> <strong>Velocidade Normal (&lt; 7.3 px/f)</strong> — Início de cada episódio</li>
+                  <li><span class="mono spec-code">V1</span> <strong>Velocidade Alta (≥ 7.3 px/f)</strong> — Exige saltar mais cedo</li>
+                </ul>
+                <div class="divider"></div>
+                <ul class="spec-list">
+                  <li><span class="mono reward-pos">+20.0</span> <strong>Saltar e superar cacto</strong> com segurança</li>
+                  <li><span class="mono reward-pos">+1.0</span> <strong>Correr seguro</strong> sem obstáculo iminente</li>
+                  <li><span class="mono reward-warn">−18.0</span> <strong>Saltar sem necessidade</strong> (desperdício de energia)</li>
+                  <li><span class="mono reward-neg">−100.0</span> <strong>Colisão com obstáculo</strong> (fim do episódio)</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ZONA DIREITA: Memória do Agente (Mapa de Política + Tabela Q ao Vivo + Hiperparâmetros) -->
+        <aside class="memory-column" aria-label="Memória e parâmetros do agente">
+          <!-- Mapa Visual da Política Aprendida -->
+          <section class="panel" aria-labelledby="policy-map-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="policy-map-title" class="panel-title">Mapa da Política Aprendida π(s)</h2>
+                <p class="panel-desc">
+                  Melhor ação em cada estado (Distância × Velocidade). Observe a fronteira de salto surgir.
+                </p>
+              </div>
+            </div>
+
+            <div class="policy-matrix" id="policy-matrix" role="grid" aria-label="Matriz de política aprendida">
+              <!-- Preenchido dinamicamente pelo JS -->
+            </div>
+          </section>
+
+          <!-- Tabela Q em Tempo Real -->
+          <section id="memoria" class="panel qtable-panel" aria-labelledby="qtable-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="qtable-title" class="panel-title">
+                  Memória do Agente (Tabela Q em Tempo Real)
+                </h2>
+                <p class="panel-desc">
+                  Linha destacada indica o estado atual. Células piscam quando recebem atualização de Bellman.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table class="qtable">
+                <thead>
+                  <tr>
+                    <th scope="col">Estado (s)</th>
+                    <th scope="col" class="num">Q(s, Correr)</th>
+                    <th scope="col" class="num">Q(s, Saltar)</th>
+                    <th scope="col">Política π(s)</th>
+                    <th scope="col" class="num">Visitas</th>
+                  </tr>
+                </thead>
+                <tbody id="qtable-body">
+                  <!-- 12 linhas geradas dinamicamente pelo JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Controles de Hiperparâmetros -->
+          <section class="panel" aria-labelledby="params-title">
+            <div class="panel-head">
+              <div>
+                <h2 id="params-title" class="panel-title">Hiperparâmetros do Q-Learning</h2>
+                <p class="panel-desc">
+                  Ajuste ao vivo para observar o impacto na velocidade e estabilidade do aprendizado.
+                </p>
+              </div>
+            </div>
+
+            <div class="sliders-stack">
+              <div class="slider-field">
+                <div class="slider-header">
+                  <label for="slider-alpha">Taxa de Aprendizado (α)</label>
+                  <output id="val-alpha" class="mono">0.25</output>
+                </div>
+                <input id="slider-alpha" type="range" min="0.05" max="0.80" step="0.05" value="0.25" />
+                <p class="slider-hint">Define o peso de cada nova experiência sobre o valor Q antigo.</p>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-header">
+                  <label for="slider-gamma">Fator de Desconto (γ)</label>
+                  <output id="val-gamma" class="mono">0.90</output>
+                </div>
+                <input id="slider-gamma" type="range" min="0.10" max="0.99" step="0.01" value="0.90" />
+                <p class="slider-hint">Mede quanto o agente valoriza recompensas futuras vs. imediatas.</p>
+              </div>
+
+              <div class="slider-field">
+                <div class="slider-header">
+                  <label for="slider-epsilon">Taxa de Exploração (ε)</label>
+                  <output id="val-epsilon" class="mono">0.60</output>
+                </div>
+                <input id="slider-epsilon" type="range" min="0.00" max="1.00" step="0.01" value="0.60" />
+                <p class="slider-hint">Probabilidade de tentar uma ação aleatória para descobrir novos resultados.</p>
+                <label class="checkbox-row" for="chk-auto-decay">
+                  <input id="chk-auto-decay" type="checkbox" checked />
+                  <span>Decaimento automático de ε a cada episódio (até 0.02)</span>
+                </label>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>
